@@ -1,0 +1,44 @@
+
+1. Make sure on-prime & rds on sync ( Validate without any error or dms)
+2. Assumed replication users are there in both on-prime and rds
+
+On Source on-prime
+
+1. Stop all application connections.
+2. insert samle record in source make sure it is there in rds
+insert into sync_table values (systime);
+stop dms job completely
+
+
+mysql> FLUSH TABLES WITH READ LOCK;
+mysql> SET GLOBAL read_only = ON;
+mysql> show master status;
+
+Get bin-log and position
+
+mysql> SET GLOBAL read_only = OFF; 
+mysql> UNLOCK TABLES;
+
+== You can release the application ===
+
+
+
+Replace the bin-log, user , password and localhost and position then run it on RDS sessions
+
+mysql>CALL mysql.rds_set_external_master ('localhost', 3306, 'repl_user', 'root', 'mysql-bin-changelog.000010', 154, 0);
+
+mysql>CALL mysql.rds_start_replication;
+mysql> show slave sttus\G
+mysql>  SET GLOBAL read_only = ON; ( change parameter in readonly)
+
+============================
+
+
+
+1. stop application
+2. maksure sync between on-prime and rds
+3. insert samle record in source make sure it is there in rds
+insert into sync_table values (systime);
+4. on-prime to readyonly mysql> SET GLOBAL read_only = ON;
+5. rds into read & write mysql> SET GLOBAL read_only = OFF; 
+6. change the connect string

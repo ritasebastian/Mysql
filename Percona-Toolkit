@@ -45,12 +45,21 @@ cd test_db-master/
 sudo su
 mysql -t < employees.sql
 
+wget https://downloads.mysql.com/docs/sakila-db.zip
+unzip sakila-db.zip
+cd sakila-db/
+sudo su 
+mysql -t < sakila-schema.sql
+mysql -t < sakila-data.sql
+
 export DB_HOST=35.163.206.156
 export DB_USERNAME=admin_user
 export DB_PASSWORD=admin_password
 pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=employees,t=employees --critical-load Threads_running=100 --max-load Threads_running=15 --alter "MODIFY emp_no bigint (20) unsigned" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute
 pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=employees,t=employees --critical-load Threads_running=100 --max-load Threads_running=15 --alter "MODIFY emp_no bigint (20) unsigned" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute --alter-foreign-keys-method=auto
 pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=employees,t=employees --critical-load Threads_running=100 --max-load Threads_running=15 --alter "ADD COLUMN uuid_col CHAR(36) AFTER emp_no, DROP PRIMARY KEY, ADD PRIMARY KEY (uuid_col), MODIFY uuid_col CHAR(36) NOT NULL" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute --alter-foreign-keys-method=auto
+
+pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=sakila,t=actor --critical-load Threads_running=100 --max-load Threads_running=15 --alter "ADD COLUMN uuid_col CHAR(36) CHAR(36) NOT NULL default UUID() AFTER actor_id, DROP PRIMARY KEY, ADD PRIMARY KEY (uuid_col)" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute --alter-foreign-keys-method=auto
 
 
 pt-online-schema-change \

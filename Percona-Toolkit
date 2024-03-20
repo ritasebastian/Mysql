@@ -32,10 +32,33 @@ FLUSH PRIVILEGES;
 
 
 # Install Perl modules required by pt-online-schema-change
-sudo yum install -y perl-English perl-Time-HiRes perl-Digest-MD5 perl-FindBin perl-sigtrap
+sudo yum install -y perl-English perl-Time-HiRes perl-Digest-MD5 perl-FindBin perl-sigtrap perl-DBD-MySQL
 
 wget https://www.percona.com/downloads/percona-toolkit/3.5.7/binary/tarball/percona-toolkit-3.5.7_x86_64.tar.gz
 tar -xzvf percona-toolkit-3.5.7_x86_64.tar.gz
-
+export PATH=$PATH:~/percona-toolkit-3.5.7/bin:.
 
 # sudo dnf install -y git
+wget https://github.com/datacharmer/test_db.git
+unzip test_db-master.zip
+cd test_db-master/
+sudo su
+mysql -t < employees.sql
+
+export DB_HOST=35.163.206.156
+export DB_USERNAME=admin_user
+export DB_PASSWORD=admin_password
+pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=employees,t=employees --critical-load Threads_running=100 --max-load Threads_running=15 --alter "MODIFY emp_no bigint (20) unsigned" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute
+pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=employees,t=employees --critical-load Threads_running=100 --max-load Threads_running=15 --alter "MODIFY emp_no bigint (20) unsigned" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute --alter-foreign-keys-method=auto
+pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=employees,t=employees --critical-load Threads_running=100 --max-load Threads_running=15 --alter "ADD COLUMN uuid_col CHAR(36) AFTER emp_no, DROP PRIMARY KEY, ADD PRIMARY KEY (uuid_col), MODIFY uuid_col CHAR(36) NOT NULL" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute --alter-foreign-keys-method=auto
+
+
+pt-online-schema-change \
+--execute \
+--host=plnudvsfweb01.corp.globalstar.com \
+--user=dmsadmin \
+--password=Timetochange2@23 \
+— port=3306 \
+--alter "ADD COLUMN uuid_col CHAR(36) AFTER id, DROP PRIMARY KEY, ADD PRIMARY KEY (uuid_col), MODIFY uuid_col CHAR(36) NOT NULL" \
+D=mls,t=carton_uuid \
+--nocheck-replication-filters

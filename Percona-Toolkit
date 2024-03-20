@@ -1,0 +1,41 @@
+# Install Mariadb10.x
+sudo dnf install -y mariadb105-server
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo systemctl status mariadb
+
+
+# Edit Parameter File
+sudo vi /etc/my.cnf.d/mariadb-server.cnf
+server-id = 2  
+expire_logs_days=2
+binlog_format = ROW 
+max_binlog_size = 1G 
+log-bin =mariadb-bin
+binlog_row_image=FULL
+binlog_checksum=NONE
+log_slave_updates=TRUE
+log-bin-index =mariadb-bin.index
+# gtid_mode = ON
+# enforce_gtid_consistency = ON
+# bind-address = 0.0.0.0
+
+sudo systemctl stop mariadb
+sudo systemctl start mariadb
+
+sudo su
+mysql
+# Create Admin and Replication Users
+CREATE USER 'admin_user'@'%' IDENTIFIED BY 'admin_password';
+GRANT ALL PRIVILEGES ON *.* TO 'admin_user'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+
+# Install Perl modules required by pt-online-schema-change
+sudo yum install -y perl-English perl-Time-HiRes perl-Digest-MD5 perl-FindBin perl-sigtrap
+
+wget https://www.percona.com/downloads/percona-toolkit/3.5.7/binary/tarball/percona-toolkit-3.5.7_x86_64.tar.gz
+tar -xzvf percona-toolkit-3.5.7_x86_64.tar.gz
+
+
+# sudo dnf install -y git

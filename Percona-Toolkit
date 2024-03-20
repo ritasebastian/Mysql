@@ -38,7 +38,7 @@ wget https://www.percona.com/downloads/percona-toolkit/3.5.7/binary/tarball/perc
 tar -xzvf percona-toolkit-3.5.7_x86_64.tar.gz
 export PATH=$PATH:~/percona-toolkit-3.5.7/bin:.
 
-# sudo dnf install -y git
+sudo dnf install -y git
 wget https://github.com/datacharmer/test_db.git
 unzip test_db-master.zip
 cd test_db-master/

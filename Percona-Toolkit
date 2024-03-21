@@ -52,6 +52,39 @@ sudo su
 mysql -t < sakila-schema.sql
 mysql -t < sakila-data.sql
 
+SELECT tc.constraint_schema,tc.constraint_name,tc.table_name,tc.constraint_type,kcu.table_name,kcu.column_name,kcu.referenced_table_name,kcu.referenced_column_name,rc.update_rule,rc.delete_rule
+FROM information_schema.table_constraints tc
+inner JOIN information_schema.key_column_usage kcu
+ON tc.constraint_catalog = kcu.constraint_catalog
+AND tc.constraint_schema = kcu.constraint_schema
+AND tc.constraint_name = kcu.constraint_name
+AND tc.table_name = kcu.table_name
+LEFT JOIN information_schema.referential_constraints rc
+ON tc.constraint_catalog = rc.constraint_catalog
+AND tc.constraint_schema = rc.constraint_schema
+AND tc.constraint_name = rc.constraint_name
+AND tc.table_name = rc.table_name
+WHERE tc.constraint_schema = 'sample' ;
+
+CREATE TABLE customer (
+  id INT NOT NULL AUTO_INCREMENT,
+  firstname varchar(50) NOT NULL,
+  lastname varchar(50) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB;
+
+CREATE TABLE contact (
+  id INT,
+  customer_id INT,
+  info varchar(50) NOT NULL,
+  type varchar(50) NOT NULL,
+) ENGINE=INNODB;
+
+INSERT INTO customer (firstname, lastname) VALUES
+('Elaine', 'Stevens'),
+('Mary', 'Dittman'),
+('Skip', 'Stevenson');
+
 export DB_HOST=35.163.206.156
 export DB_USERNAME=admin_user
 export DB_PASSWORD=admin_password
@@ -63,12 +96,23 @@ pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=sakila,t=acto
 
 pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=sakila,t=actor --critical-load Threads_running=100 --max-load Threads_running=15 --alter "MODIFY actor_id bigint (20) unsigned" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --execute  --alter-foreign-keys-method=auto
 
-pt-online-schema-change \
---execute \
---host=plnudvsfweb01.corp.globalstar.com \
---user=dmsadmin \
---password=Timetochange2@23 \
-— port=3306 \
---alter "ADD COLUMN uuid_col CHAR(36) AFTER id, DROP PRIMARY KEY, ADD PRIMARY KEY (uuid_col), MODIFY uuid_col CHAR(36) NOT NULL" \
-D=mls,t=carton_uuid \
---nocheck-replication-filters
+time pt-online-schema-change \
+h=$DB_HOST,\
+u=$DB_USERNAME,\
+p=$DB_PASSWORD,\
+D=sakila,t=actor \
+--max-lag=100 \
+--critical-load Threads_running=100 \
+--max-load Threads_running=15 \
+--nocheck-replication-filters \
+--alter "MODIFY actor_id bigint (20) unsigned" \
+--tries swap_tables:50:5 \
+--set-vars wait_timeout=43200,lock_wait_timeout=1800 \
+--alter-foreign-keys-method=drop_swap \
+--execute
+pt-online-schema-change --alter "engine='InnoDB'" h=$DB_HOST,D=sakila,t=actor --ask-pass --progress time,10 --print --nocheck-replication-filters 
+--recursion-method=none --set-vars="SQL_LOG_BIN=OFF" --max-load "Threads_connected=900" --alter-foreign-keys-method=drop_swap --execute
+
+
+
+time pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=sakila,t=actor --max-lag=100 --critical-load Threads_running=100 --max-load Threads_running=15 --nocheck-replication-filters --alter "MODIFY actor_id bigint (20) unsigned" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --alter-foreign-keys-method=rebuild_constraints --plugin=/home/ec2-user/sakila-db/ptosc_plugin_drop_fk.pl

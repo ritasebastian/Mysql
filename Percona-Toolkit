@@ -116,3 +116,255 @@ pt-online-schema-change --alter "engine='InnoDB'" h=$DB_HOST,D=sakila,t=actor --
 
 
 time pt-online-schema-change h=$DB_HOST,u=$DB_USERNAME,p=$DB_PASSWORD,D=sakila,t=actor --max-lag=100 --critical-load Threads_running=100 --max-load Threads_running=15 --nocheck-replication-filters --alter "MODIFY actor_id bigint (20) unsigned" --tries swap_tables:50:5 --set-vars wait_timeout=43200,lock_wait_timeout=1800 --alter-foreign-keys-method=rebuild_constraints --plugin=/home/ec2-user/sakila-db/ptosc_plugin_drop_fk.pl
+
+
+
+
+
+-- Filim
+
+ALTER TABLE film ADD COLUMN UUID_film_id varchar(36) NOT NULL DEFAULT (UUID());
+
+ALTER TABLE film_actor ADD COLUMN UUID_film_id  varchar(36) ;
+ALTER TABLE film_category ADD COLUMN UUID_film_id  varchar(36) ;
+ALTER TABLE inventory ADD COLUMN UUID_film_id  varchar(36) ;
+
+UPDATE film_actor AS fa
+JOIN film AS a ON fa.film_id = a.film_id
+SET fa. UUID_film_id  = a. UUID_film_id ;
+
+UPDATE film_category AS fa
+JOIN film AS a ON fa.film_id = a.film_id
+SET fa. UUID_film_id  = a. UUID_film_id ;
+
+UPDATE inventory AS fa
+JOIN film AS a ON fa.film_id = a.film_id
+SET fa. UUID_film_id  = a. UUID_film_id ;
+
+-- Actor
+
+ALTER TABLE actor ADD COLUMN UUID_actor_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE film_actor ADD COLUMN UUID_actor_id  varchar(36) ;
+
+UPDATE film_actor AS fa
+JOIN actor AS a ON fa.actor_id = a.actor_id
+SET fa. UUID_actor_id  = a. UUID_actor_id ;
+
+-- Address
+ALTER TABLE address ADD COLUMN UUID_address_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE store ADD COLUMN UUID_address_id  varchar(36) ;
+ALTER TABLE customer ADD COLUMN UUID_address_id  varchar(36) ;
+ALTER TABLE staff ADD COLUMN UUID_address_id  varchar(36) ;
+
+UPDATE store AS fa
+JOIN address AS a ON fa.address_id = a.address_id
+SET fa. UUID_address_id  = a. UUID_address_id ;
+
+UPDATE customer AS fa
+JOIN address AS a ON fa.address_id = a.address_id
+SET fa. UUID_address_id  = a. UUID_address_id ;
+
+UPDATE staff AS fa
+JOIN address AS a ON fa.address_id = a.address_id
+SET fa. UUID_address_id  = a. UUID_address_id ;
+
+-- category
+
+ALTER TABLE category ADD COLUMN UUID_category_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE film_category ADD COLUMN UUID_category_id  varchar(36) ;
+
+UPDATE film_category AS fa
+JOIN category AS a ON fa.category_id = a.category_id
+SET fa. UUID_category_id  = a. UUID_category_id ;
+
+-- City
+
+ALTER TABLE city ADD COLUMN UUID_city_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE address ADD COLUMN UUID_city_id  varchar(36) ;
+
+UPDATE address AS fa
+JOIN address AS a ON fa.city_id = a.city_id
+SET fa. UUID_city_id  = a. UUID_city_id ;
+
+
+-- country
+
+ALTER TABLE country ADD COLUMN UUID_country_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE city ADD COLUMN UUID_country_id  varchar(36) ;
+
+UPDATE city AS fa
+JOIN country AS a ON fa.country_id = a.country_id
+SET fa.UUID_country_id  = a UUID_country_id ;
+
+-- customer
+
+ALTER TABLE customer ADD COLUMN UUID_customer_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE rental ADD COLUMN UUID_customer_id  varchar(36) ;
+ALTER TABLE payment ADD COLUMN UUID_customer_id  varchar(36) ;
+
+
+UPDATE rental AS fa
+JOIN customer AS a ON fa.customer_id  = a.customer_id 
+SET fa. UUID_customer_id  = a. UUID_customer_id ;
+
+UPDATE payment AS fa
+JOIN customer AS a ON fa.customer_id  = a.customer_id 
+SET fa.UUID_customer_id  = a.UUID_customer_id ;
+
+
+-- inventory
+ALTER TABLE inventory ADD COLUMN UUID_inventory_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE rental ADD COLUMN UUID_inventory_id  varchar(36) ;
+
+UPDATE rental AS fa
+JOIN inventory AS a ON fa.inventory_id   = a.inventory_id  
+SET fa.UUID_inventory_id  = a.UUID_inventory_id ;
+
+
+-- language
+ALTER TABLE language ADD COLUMN UUID_language_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE film ADD COLUMN UUID_language_id  varchar(36) ;
+
+UPDATE film AS fa
+JOIN language AS a ON fa.language_id   = a.language_id
+SET fa.UUID_language_id  = a.UUID_language_id ;
+
+####
+ALTER TABLE language ADD COLUMN UUID_language_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE film ADD COLUMN UUID_language_id  varchar(36) ;
+
+UPDATE film AS fa
+JOIN language AS a ON fa.language_id   = a.language_id
+SET fa. UUID_language_id  = a. UUID_language_id ;
+####
+
+-- rental
+ALTER TABLE rental ADD COLUMN UUID_rental_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE payment ADD COLUMN UUID_rental_id  varchar(36) ;
+
+UPDATE payment AS fa
+JOIN rental AS a ON fa.rental_id  = a.rental_id
+SET fa.UUID_rental_id  = a.UUID_rental_id ;
+
+
+-- staff
+
+ALTER TABLE staff ADD COLUMN UUID_staff_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE rental ADD COLUMN UUID_staff_id  varchar(36) ;
+ALTER TABLE payment ADD COLUMN UUID_staff_id  varchar(36) ;
+ALTER TABLE store ADD COLUMN UUID_staff_id  varchar(36) ;
+
+UPDATE rental AS fa
+JOIN staff AS a ON fa.staff_id  = a.staff_id
+SET fa.UUID_staff_id  = a.UUID_staff_id ;
+
+UPDATE payment AS fa
+JOIN staff AS a ON fa.staff_id  = a.staff_id
+SET fa.UUID_staff_id  = a.UUID_staff_id ;
+
+########
+UPDATE store AS fa
+JOIN staff AS a ON fa.staff_id  = a.manager_staff_id
+SET fa.UUID_staff_id  = a.UUID_staff_id ;
+######
+
+-- store
+ALTER TABLE store ADD COLUMN UUID_store_id varchar(36) NOT NULL DEFAULT (UUID());
+ALTER TABLE inventory ADD COLUMN UUID_store_id  varchar(36) ;
+ALTER TABLE customer ADD COLUMN UUID_store_id  varchar(36) ;
+ALTER TABLE staff ADD COLUMN UUID_store_id  varchar(36) ;
+
+UPDATE inventory AS fa
+JOIN store AS a ON fa.store_id  = a.store_id
+SET fa.UUID_store_id  = a.UUID_store_id ;
+
+UPDATE customer AS fa
+JOIN store AS a ON fa.store_id  = a.store_id
+SET fa.UUID_store_id  = a.UUID_store_id ;
+
+
+UPDATE staff AS fa
+JOIN store AS a ON fa.store_id  = a.store_id
+SET fa.UUID_store_id  = a.UUID_store_id ;
+
+
+ALTER TABLE `actor`
+ADD CONSTRAINT `PK_actor_id` PRIMARY KEY (`actor_id`);
+
+
+ALTER TABLE `film_actor`
+ADD CONSTRAINT `FK_film_actor_actor_id`
+FOREIGN KEY (`actor_id`)
+REFERENCES `actor` (`actor_id`);
+
+
+ALTER TABLE `film_actor`
+ADD CONSTRAINT `PK_film_actor` PRIMARY KEY (`actor_id`, `film_id`);
+
+
+ALTER TABLE `film_actor`
+ADD CONSTRAINT `FK_film_actor_actor`
+FOREIGN KEY (`actor_id`)
+REFERENCES `actor` (`actor_id`)
+ON UPDATE CASCADE;
+
+ALTER TABLE `film_actor`
+ADD CONSTRAINT `FK_film_actor_film`
+FOREIGN KEY (`film_id`)
+REFERENCES `film` (`film_id`)
+ON UPDATE CASCADE;
+
+==============================================================
+
+
+select * from film_actor where UUID is null;
+
+-- Drop the foreign key constraint
+ALTER TABLE film_actor DROP FOREIGN KEY fk_film_actor_actor;
+
+-- Modify the column
+ALTER TABLE actor modify COLUMN actor_id smallint(5);
+
+ALTER TABLE actor drop PRIMARY KEY;
+
+alter table actor change UUID_actor_id actor_id;
+
+alter table film_actor change UUID_actor_id actor_id;
+
+
+ALTER TABLE actor ADD PRIMARY KEY (UUID);
+
+ALTER TABLE actor drop COLUMN actor_id;
+
+-- Recreate the foreign key constraint
+ALTER TABLE film_actor ADD CONSTRAINT fk_film_actor_actor FOREIGN KEY (UUID) REFERENCES actor(UUID);
+
+
+--ALTER TABLE film_actor modify COLUMN UUID varchar(36) NOT NULL DEFAULT (UUID());
+
+
+=======================
+-- Add UUID column to actor table
+ALTER TABLE actor ADD COLUMN UUID VARCHAR(36) NOT NULL DEFAULT (UUID());
+
+-- Add UUID column to film_actor table
+ALTER TABLE film_actor ADD COLUMN UUID VARCHAR(36);
+
+-- Update film_actor UUIDs based on actor table
+UPDATE film_actor AS fa
+JOIN actor AS a ON fa.actor_id = a.actor_id
+SET fa.UUID = a.UUID;
+
+-- Add primary key to actor table using UUID column
+ALTER TABLE actor ADD PRIMARY KEY (UUID);
+
+-- Drop actor_id column from actor table
+ALTER TABLE actor DROP COLUMN actor_id;
+
+-- Drop foreign key constraint
+ALTER TABLE film_actor DROP FOREIGN KEY fk_film_actor_actor;
+
+-- Add foreign key constraint using UUID column
+ALTER TABLE film_actor ADD CONSTRAINT fk_film_actor_actor FOREIGN KEY (UUID) REFERENCES actor(UUID);
+
+

@@ -344,6 +344,35 @@ ALTER TABLE film_actor ADD CONSTRAINT fk_film_actor_actor FOREIGN KEY (UUID) REF
 
 
 =======================
+
+
+ALTER TABLE film_actor DROP FOREIGN KEY fk_film_actor_actor;
+
+ALTER TABLE actor modify COLUMN actor_id smallint(5);
+
+ALTER TABLE actor drop PRIMARY KEY;
+ALTER TABLE film_actor drop PRIMARY KEY;
+
+alter table actor drop column actor_id;
+alter table film_actor drop column actor_id;
+
+
+alter table actor change uuid_actor_id actor_id varchar(36) NOT NULL DEFAULT (UUID());
+
+alter table film_actor change uuid_actor_id actor_id varchar(36) NOT NULL;
+
+ALTER TABLE `actor`
+ADD CONSTRAINT `PK_actor_id` PRIMARY KEY (`actor_id`);
+
+
+ALTER TABLE `film_actor`
+ADD CONSTRAINT `FK_film_actor_actor_id`
+FOREIGN KEY (`actor_id`)
+REFERENCES `actor` (`actor_id`);
+
+
+
+============
 -- Add UUID column to actor table
 ALTER TABLE actor ADD COLUMN UUID VARCHAR(36) NOT NULL DEFAULT (UUID());
 
@@ -366,5 +395,7 @@ ALTER TABLE film_actor DROP FOREIGN KEY fk_film_actor_actor;
 
 -- Add foreign key constraint using UUID column
 ALTER TABLE film_actor ADD CONSTRAINT fk_film_actor_actor FOREIGN KEY (UUID) REFERENCES actor(UUID);
+
+
 
 

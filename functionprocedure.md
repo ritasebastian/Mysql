@@ -79,3 +79,55 @@ Expected output:
 
 ---
 
+
+## ✅ 1. Calling a **Function**
+
+### 📌 Syntax (used inside a `SELECT`)
+```sql
+SELECT function_name(param1, param2, ...);
+```
+
+### 🧪 Example
+```sql
+-- Call a function to get discounted price
+SELECT get_discounted_price(1000, 10);
+-- Output: 900.00
+```
+
+### 🔍 Note:
+You can also use functions inside queries:
+```sql
+SELECT name, get_discounted_price(price, 10) AS discounted_price FROM products;
+```
+
+---
+
+## ✅ 2. Calling a **Stored Procedure**
+
+### 📌 Syntax
+```sql
+CALL procedure_name(param1, param2, ...);
+```
+
+### 🧪 Example
+```sql
+-- Call a procedure to insert a product
+CALL insert_product('Smartphone', 600, 15);
+```
+
+It will:
+- Calculate discount using your `get_discounted_price()` function
+- Insert the product into the `products` table
+
+---
+
+### 🧠 Summary Table
+
+| Type         | Keyword | Usage                              | Can return value directly? |
+|--------------|---------|-------------------------------------|-----------------------------|
+| **Function** | `SELECT`| `SELECT func(a, b);`               | ✅ Yes                      |
+| **Procedure**| `CALL`  | `CALL proc(a, b);`                 | ❌ No (but can use `OUT` vars or `SELECT` inside) |
+
+---
+
+

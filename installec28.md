@@ -416,3 +416,94 @@ You should see `testdb`.
 
 ---
 
+Thanks for sharing the `systemctl status` output — MySQL is **technically running**, but we can clearly see an **InnoDB locking error** repeating in the background:
+
+```
+[ERROR] [MY-012574] [InnoDB] Unable to lock ./ibdata1
+```
+
+---
+
+## ❗ Root Cause
+
+This error means:
+
+> 🔒 **InnoDB cannot lock `ibdata1`** — the system tablespace file — because it's likely:
+- Already in use by **another `mysqld` process** running in the background
+- **Leftover `.pid` or `.sock`** file is confusing the startup
+- **Crash recovery is in progress** or the file is corrupt
+
+---
+
+## ✅ Fix It: Step-by-Step
+
+### 🔍 Step 1: Check if another mysqld process is running
+
+```bash
+sudo systemctl stop mysql
+ps -ef | grep mysqld
+```
+
+If you see more than one `/usr/local/mysql/bin/mysqld` process, **kill them all**:
+
+```bash
+sudo pkill -f mysqld
+```
+
+Also:
+
+```bash
+sudo pkill -f mysqld_safe
+```
+
+Then verify:
+
+```bash
+ps -ef | grep mysqld
+```
+
+---
+
+### 🧹 Step 2: Clean leftover files (optional but safe)
+
+```bash
+sudo rm -f /usr/local/mysql/data/*.pid
+sudo rm -f /usr/local/mysql/data/*.sock
+```
+
+---
+
+### 🔄 Step 3: Start MySQL cleanly
+
+```bash
+sudo systemctl restart mysql
+```
+
+Check status:
+
+```bash
+sudo systemctl status mysql
+```
+
+And monitor logs:
+
+```bash
+sudo tail -f /usr/local/mysql/data/*.err
+```
+
+---
+
+## ⚠️ If Error Persists: InnoDB Recovery May Be Needed
+
+If locking continues even after a clean restart, you may be dealing with:
+- Incomplete shutdown earlier
+- Corrupted `ibdata1` or redo logs
+
+You can start MySQL in recovery mode:
+
+```bash
+sudo /usr/local/mysql/bin/mysqld --user=mysql --datadir=/usr/local/mysql/data --innodb-force-recovery=1
+```
+
+
+

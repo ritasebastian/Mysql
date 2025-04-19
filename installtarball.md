@@ -195,3 +195,133 @@ Now you have a **clean, custom-path MySQL** install with:
 - MySQL CLI available via `$PATH`
 
 ---
+
+
+# 📦 Install and Automate Percona XtraBackup on Custom MySQL Install (Tarball)
+
+---
+
+## ✅ 1. Download & Install Percona XtraBackup
+
+```bash
+wget https://downloads.percona.com/downloads/Percona-XtraBackup-8.0/Percona-XtraBackup-8.0.35-30/binary/tarball/percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17.tar.gz
+tar -xzf percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17.tar.gz
+sudo mv percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17 /opt/xtrabackup
+```
+
+---
+
+## 🛠️ 2. Add XtraBackup to PATH
+
+```bash
+echo 'export PATH=$PATH:/opt/xtrabackup/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+## 🧪 3. Verify Installation
+
+```bash
+xtrabackup --version
+```
+
+Expected output:
+
+```bash
+xtrabackup version 8.0.35-30 based on MySQL server 8.0.35
+```
+
+---
+
+## 🛡️ 4. Create Backup Script
+
+### 🔹 Create script directory & set ownership:
+
+```bash
+sudo mkdir -p /usr/local/mysql/scripts
+sudo chown mysql:mysql /usr/local/mysql/scripts
+```
+
+### 🔹 Create script file:
+
+```bash
+sudo vi /usr/local/mysql/scripts/mysql_backup.sh
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+
+DATE=$(date +%F_%H-%M)
+BACKUP_DIR="/backup/mysql/$DATE"
+DATA_DIR="/usr/local/mysql/data"
+LOG_FILE="/var/log/mysql_backup.log"
+MYSQL_USER="root"
+MYSQL_PASS="dbaonly123"
+XTRABACKUP_BIN="/opt/xtrabackup/bin/xtrabackup"
+SOCKET_PATH="/tmp/mysql.sock"
+
+mkdir -p "$BACKUP_DIR"
+echo "[$(date)] Starting backup..." >> "$LOG_FILE"
+
+# Cleanup old backups (older than 7 days)
+find /backup/mysql/* -maxdepth 0 -type d -mtime +7 -exec rm -rf {} \; >> "$LOG_FILE" 2>&1
+
+"$XTRABACKUP_BIN" --backup \
+  --target-dir="$BACKUP_DIR" \
+  --datadir="$DATA_DIR" \
+  --user="$MYSQL_USER" \
+  --password="$MYSQL_PASS" \
+  --socket="$SOCKET_PATH" >> "$LOG_FILE" 2>&1
+
+if [ $? -eq 0 ]; then
+  echo "[$(date)] Backup successful: $BACKUP_DIR" >> "$LOG_FILE"
+else
+  echo "[$(date)] Backup failed!" >> "$LOG_FILE"
+fi
+```
+
+---
+
+## ✅ 5. Make Script Executable
+
+```bash
+sudo chmod +x /usr/local/mysql/scripts/mysql_backup.sh
+```
+
+---
+
+## ⏰ 6. Automate Daily with Cron
+
+Edit your crontab:
+
+```bash
+crontab -e
+```
+
+Add this line to schedule daily backups at **2:30 AM**:
+
+```cron
+30 2 * * * /usr/local/mysql/scripts/mysql_backup.sh
+```
+
+---
+
+## 🧪 7. Manual Test
+
+```bash
+sudo /usr/local/mysql/scripts/mysql_backup.sh
+cat /var/log/mysql_backup.log
+ls /backup/mysql
+```
+
+You should see:
+- A dated folder inside `/backup/mysql/`
+- Log entries for "Backup successful"
+- Dumped files like `xtrabackup_logfile`, `ibdata1`, etc.
+
+---
+
+

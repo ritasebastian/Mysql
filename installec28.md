@@ -107,7 +107,7 @@ Let’s go step-by-step. This is tailored for a **binary MySQL installation** in
 Create the service file:
 
 ```bash
-sudo nano /etc/systemd/system/mysql.service
+sudo vi /etc/systemd/system/mysql.service
 ```
 
 Paste the following content (edit paths if different):

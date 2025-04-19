@@ -118,13 +118,13 @@ Description=MySQL Server
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 User=mysql
 Group=mysql
-ExecStart=/usr/local/mysql/bin/mysqld_safe --datadir=/usr/local/mysql/data
+ExecStart=/usr/local/mysql/bin/mysqld --datadir=/usr/local/mysql/data
 ExecStop=/usr/local/mysql/bin/mysqladmin shutdown
 Restart=on-failure
-LimitNOFILE = 5000
+LimitNOFILE=5000
 
 [Install]
 WantedBy=multi-user.target

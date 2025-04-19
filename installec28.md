@@ -235,4 +235,169 @@ You now have:
 - ✅ Automatic daily backups with retention
 
 ---
+Perfect! Let’s update your setup to use **hostnames `db1` and `db2`** instead of IP addresses, using the `/etc/hosts` file on both EC2 instances.
 
+---
+
+## 🖥️ Step 0: Set Static Hostnames via `/etc/hosts`
+
+### ✅ On **both db1 and db2**, add the following to `/etc/hosts`:
+
+Edit with:
+
+```bash
+sudo vi /etc/hosts
+```
+
+Add lines:
+
+```ini
+192.168.1.10   db1
+192.168.1.20   db2
+```
+
+> 📝 Replace `192.168.1.10` and `192.168.1.20` with the **actual private IPs** of your EC2 instances.
+
+Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+---
+
+## 🛠️ Step 1: Configure `my.cnf` on **db1 (Primary)**
+```bash
+sudo vi /etc/my.cnf
+```
+```ini
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+gtid_mode=ON
+enforce-gtid-consistency=ON
+binlog-format=ROW
+log_slave_updates=ON
+bind-address=0.0.0.0
+```
+
+Restart MySQL:
+
+```bash
+sudo systemctl restart mysql
+```
+
+---
+
+## 👤 Step 2: Create Replication User on **db1**
+
+Log into MySQL:
+
+```bash
+mysql -u root -p
+```
+
+Run:
+
+```sql
+CREATE USER 'repl'@'db2' IDENTIFIED BY 'replpass';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'db2';
+FLUSH PRIVILEGES;
+```
+
+---
+
+## 🛠️ Step 3: Configure `my.cnf` on **db2 (Replica)**
+
+```ini
+[mysqld]
+server-id=2
+gtid_mode=ON
+enforce-gtid-consistency=ON
+binlog-format=ROW
+log_slave_updates=ON
+read_only=ON
+```
+
+Restart MySQL:
+
+```bash
+sudo systemctl restart mysql
+```
+
+---
+
+## 🔍 Step 4: Get GTID Info from **db1**
+
+```sql
+SHOW MASTER STATUS\G
+```
+
+Note the `Executed_Gtid_Set` value (you'll need it in Step 5).
+
+---
+
+## 🔁 Step 5: Configure Replication on **db2**
+
+Log into MySQL:
+
+```bash
+mysql -u root -p
+```
+
+Then run:
+
+```sql
+STOP SLAVE;
+
+CHANGE MASTER TO
+  MASTER_HOST='db1',
+  MASTER_USER='repl',
+  MASTER_PASSWORD='replpass',
+  MASTER_AUTO_POSITION = 1;
+
+START SLAVE;
+```
+
+---
+
+## ✅ Step 6: Verify Replication on db2
+
+```sql
+SHOW SLAVE STATUS\G
+```
+
+Ensure:
+- `Slave_IO_Running: Yes`
+- `Slave_SQL_Running: Yes`
+- `Seconds_Behind_Master: 0`
+
+---
+
+## 🧪 Step 7: Test Replication
+
+On **db1**:
+
+```sql
+CREATE DATABASE testreplica;
+```
+
+On **db2**:
+
+```sql
+SHOW DATABASES;
+```
+
+You should see `testreplica`.
+
+---
+
+## 📝 Summary
+
+| Server | IP | Hostname | Role |
+|--------|----|----------|------|
+| EC2-1  | `192.168.1.10` | db1 | MySQL Primary (Master) |
+| EC2-2  | `192.168.1.20` | db2 | MySQL Replica (Slave)  |
+
+- Replication uses GTID for consistency and crash recovery
+- `/etc/hosts` lets you reference `db1`/`db2` instead of IPs
+
+---
+
+Let me know if you want a **bash automation script** for setting up `/etc/hosts`, MySQL configs, and replication in one go!

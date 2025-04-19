@@ -87,7 +87,7 @@ mysql -u root -p
 Then run:
 
 ```sql
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'YourNewSecurePass123!';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'dbaonly123';
 ```
 
 ---
@@ -227,7 +227,14 @@ Example command to take a full backup:
 
 ```bash
 sudo mkdir -p /backup/mysql
-sudo xtrabackup --backup --target-dir=/backup/mysql --datadir=/usr/local/mysql/data --user=root --password=YourPassword
+sudo chown mysql:mysql /backup/mysql
+sudo /opt/xtrabackup/bin/xtrabackup --backup \
+  --target-dir=/backup/mysql \
+  --datadir=/usr/local/mysql/data \
+  --user=root \
+  --password=dbaonly123 \
+  --socket=/tmp/mysql.sock
+
 ```
 
 > Change `--datadir` and `--target-dir` paths if needed.
@@ -257,7 +264,7 @@ BACKUP_DIR="/backup/mysql/$DATE"
 DATA_DIR="/usr/local/mysql/data"
 LOG_FILE="/var/log/mysql_backup.log"
 MYSQL_USER="root"
-MYSQL_PASS="YourPassword"
+MYSQL_PASS="dbaonly123"
 
 mkdir -p "$BACKUP_DIR"
 
@@ -331,4 +338,4 @@ cat /var/log/mysql_backup.log
 
 ---
 
-Do you want to compress the backups (e.g., using `tar.gz`) or push them to S3/GCS for remote storage? I can help with that too!
+

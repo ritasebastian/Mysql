@@ -172,7 +172,6 @@ As of now, the latest available version of Percona XtraBackup is **8.0.35-30**, 
 ```bash
 wget https://downloads.percona.com/downloads/Percona-XtraBackup-8.0/Percona-XtraBackup-8.0.35-30/binary/tarball/percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17.tar.gz
 ```
-
 
 This tarball is suitable for most modern Linux distributions, including Amazon Linux 2023.
 
@@ -183,14 +182,12 @@ This tarball is suitable for most modern Linux distributions, including Amazon L
    ```bash
    tar -xzf percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17.tar.gz
    ```
-
 
 2. **Move to a Desired Location** (e.g., `/opt`):
 
    ```bash
    sudo mv percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17 /opt/xtrabackup
    ```
-
 
 3. **Add to PATH**:
 
@@ -199,7 +196,6 @@ This tarball is suitable for most modern Linux distributions, including Amazon L
    ```bash
    export PATH=$PATH:/opt/xtrabackup/bin
    ```
-
 
    Permanently (add to `.bashrc` or `.bash_profile`):
 
@@ -207,18 +203,15 @@ This tarball is suitable for most modern Linux distributions, including Amazon L
    echo 'export PATH=$PATH:/opt/xtrabackup/bin' >> ~/.bashrc
    source ~/.bashr
    ```
-
 
 4. **Verify Installation**:
 
    ```bash
    xtrabackup --version
    ```
-
 
    You should see output indicating the installed version, confirming a successful setup.
 
-
 ---
 
 ## ✅ 4. Test XtraBackup
@@ -251,6 +244,7 @@ Awesome! Here's how to automate **Percona XtraBackup** using a cron job and a sh
 Create a new script:
 
 ```bash
+sudo mkdir -p /usr/local/mysql/scripts/
 sudo vi /usr/local/mysql/scripts/mysql_backup.sh
 ```
 
@@ -258,24 +252,33 @@ Paste this backup script:
 
 ```bash
 #!/bin/bash
-
 DATE=$(date +%F_%H-%M)
 BACKUP_DIR="/backup/mysql/$DATE"
 DATA_DIR="/usr/local/mysql/data"
 LOG_FILE="/var/log/mysql_backup.log"
 MYSQL_USER="root"
 MYSQL_PASS="dbaonly123"
+XTRABACKUP_BIN="/opt/xtrabackup/bin/xtrabackup"
+SOCKET_PATH="/tmp/mysql.sock"
 
+# Create backup directory
 mkdir -p "$BACKUP_DIR"
 
+# Log start
 echo "[$(date)] Starting backup..." >> "$LOG_FILE"
 
-/usr/bin/xtrabackup --backup \
+# Cleanup old backups (older than 7 days)
+find /backup/mysql/* -maxdepth 0 -type d -mtime +7 -exec rm -rf {} \; >> "$LOG_FILE" 2>&1
+
+# Run backup
+"$XTRABACKUP_BIN" --backup \
   --target-dir="$BACKUP_DIR" \
   --datadir="$DATA_DIR" \
   --user="$MYSQL_USER" \
-  --password="$MYSQL_PASS" >> "$LOG_FILE" 2>&1
+  --password="$MYSQL_PASS" \
+  --socket="$SOCKET_PATH" >> "$LOG_FILE" 2>&1
 
+# Log result
 if [ $? -eq 0 ]; then
   echo "[$(date)] Backup successful: $BACKUP_DIR" >> "$LOG_FILE"
 else

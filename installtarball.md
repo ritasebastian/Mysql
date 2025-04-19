@@ -1,4 +1,4 @@
-Great! You're asking for a **clean and production-style MySQL installation using a tarball**, where:
+**clean and production-style MySQL installation using a tarball**, where:
 
 - ✅ MySQL **software is installed separately** (e.g., `/opt/mysql`)
 - ✅ **Data**, **binlogs**, **slow logs**, **error logs**, and `my.cnf` are all placed in **custom directories**
@@ -28,8 +28,10 @@ Choose your layout:
 sudo mkdir -p /opt/mysql
 sudo mkdir -p /data/mysql
 sudo mkdir -p /var/log/mysql
+sudo mkdir -p /var/run/mysqld
+sudo mkdir -p /home/mysql
 sudo groupadd mysql
-sudo useradd -r -g mysql -s /bin/false mysql
+sudo useradd -r -g mysql -s /bin/false -d /home/mysql mysql
 ```
 
 ---
@@ -50,6 +52,8 @@ sudo mv mysql-8.0.36-linux-glibc2.28-x86_64/* /opt/mysql
 sudo chown -R mysql:mysql /opt/mysql
 sudo chown -R mysql:mysql /data/mysql
 sudo chown -R mysql:mysql /var/log/mysql
+sudo chown -R mysql:mysql /var/run/mysqld
+sudo chown mysql:mysql /home/mysql
 ```
 
 ---
@@ -116,7 +120,7 @@ source /etc/profile.d/mysql.sh
 ## ✅ 7. Create systemd Service (optional but recommended)
 
 ```bash
-sudo nano /etc/systemd/system/mysql.service
+sudo vi /etc/systemd/system/mysql.service
 ```
 
 Paste:
@@ -154,6 +158,8 @@ sudo systemctl status mysql
 ## ✅ 8. Secure MySQL
 
 ```bash
+sudo su mysql
+sudo cat /var/log/mysql/mysqld.err | grep 'temporary password'
 /opt/mysql/bin/mysql_secure_installation
 ```
 
@@ -189,5 +195,3 @@ Now you have a **clean, custom-path MySQL** install with:
 - MySQL CLI available via `$PATH`
 
 ---
-
-Let me know if you want a pre-built install script for this entire setup 🔧 or want to apply this layout to a replication setup (db1/db2).

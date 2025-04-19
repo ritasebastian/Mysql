@@ -172,7 +172,7 @@ As of now, the latest available version of Percona XtraBackup is **8.0.35-30**, 
 ```bash
 wget https://downloads.percona.com/downloads/Percona-XtraBackup-8.0/Percona-XtraBackup-8.0.35-30/binary/tarball/percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17.tar.gz
 ```
-
+
 
 This tarball is suitable for most modern Linux distributions, including Amazon Linux 2023.
 
@@ -251,7 +251,7 @@ Awesome! Here's how to automate **Percona XtraBackup** using a cron job and a sh
 Create a new script:
 
 ```bash
-sudo nano /usr/local/mysql/scripts/mysql_backup.sh
+sudo vi /usr/local/mysql/scripts/mysql_backup.sh
 ```
 
 Paste this backup script:

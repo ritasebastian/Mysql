@@ -61,7 +61,7 @@ sudo chown mysql:mysql /home/mysql
 ## ✅ 4. Create Custom `my.cnf`
 
 ```bash
-sudo nano /etc/my.cnf
+sudo vi /etc/my.cnf
 ```
 
 Paste:

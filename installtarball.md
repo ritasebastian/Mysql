@@ -22,7 +22,7 @@ Choose your layout:
 | Data           | `/data/mysql`               |
 | Logs (binlog, slow, error) | `/var/log/mysql`            |
 | Config         | `/etc/my.cnf`               |
-| MySQL User     | `mysql` (non-login user)    |
+| MySQL User     | `mysql` (login user)    |
 
 ```bash
 sudo mkdir -p /opt/mysql

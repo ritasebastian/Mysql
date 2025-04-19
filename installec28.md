@@ -161,26 +161,64 @@ sudo systemctl stop mysql
 
 ## ✅ 3. Install Percona XtraBackup
 
-Percona provides XtraBackup binaries for CentOS, Amazon Linux, and Ubuntu.
+Percona provides XtraBackup binaries for CentOS, Amazon Linux.
 
-### ➤ For Amazon Linux 2 / CentOS (most EC2 AMIs):
 
-```bash
-sudo yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
-sudo percona-release enable-only tools release
-sudo yum install percona-xtrabackup-80 -y
-```
 
-### ➤ For Ubuntu:
+### ✅ Recommended Solution: Use the Latest Available Binary Tarball
+
+As of now, the latest available version of Percona XtraBackup is **8.0.35-30**, which supports MySQL versions up to 8.0.36. You can download the binary tarball compatible with your system (glibc 2.17) using the following command:
 
 ```bash
-wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-sudo dpkg -i percona-release_latest.generic_all.deb
-sudo percona-release setup tools
-sudo apt update
-sudo apt install percona-xtrabackup-80 -y
+wget https://downloads.percona.com/downloads/Percona-XtraBackup-8.0/Percona-XtraBackup-8.0.35-30/binary/tarball/percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17.tar.gz
 ```
 
+
+This tarball is suitable for most modern Linux distributions, including Amazon Linux 2023.
+
+### 📦 Installation Steps
+
+1. **Extract the Tarball**:
+
+   ```bash
+   tar -xzf percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17.tar.gz
+   ```
+
+
+2. **Move to a Desired Location** (e.g., `/opt`):
+
+   ```bash
+   sudo mv percona-xtrabackup-8.0.35-30-Linux-x86_64.glibc2.17 /opt/xtrabackup
+   ```
+
+
+3. **Add to PATH**:
+
+   Temporarily:
+
+   ```bash
+   export PATH=$PATH:/opt/xtrabackup/bin
+   ```
+
+
+   Permanently (add to `.bashrc` or `.bash_profile`):
+
+   ```bash
+   echo 'export PATH=$PATH:/opt/xtrabackup/bin' >> ~/.bashrc
+   source ~/.bashr
+   ```
+
+
+4. **Verify Installation**:
+
+   ```bash
+   xtrabackup --version
+   ```
+
+
+   You should see output indicating the installed version, confirming a successful setup.
+
+
 ---
 
 ## ✅ 4. Test XtraBackup

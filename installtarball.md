@@ -72,6 +72,7 @@ basedir=/opt/mysql
 datadir=/data/mysql
 socket=/tmp/mysql.sock
 pid-file=/var/run/mysqld/mysqld.pid
+innodb_dedicated_server=ON
 
 log-error=/var/log/mysql/mysqld.err
 slow_query_log=1

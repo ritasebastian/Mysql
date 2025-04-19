@@ -376,7 +376,22 @@ Ensure:
 On **db1**:
 
 ```sql
-CREATE DATABASE testreplica;
+CREATE DATABASE testdb;
+
+USE testdb;
+
+CREATE TABLE employees (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100),
+  department VARCHAR(100),
+  hire_date DATE
+);
+
+INSERT INTO employees (name, department, hire_date) VALUES
+('Alice', 'Engineering', '2022-05-01'),
+('Bob', 'Sales', '2021-11-12'),
+('Charlie', 'HR', '2020-03-15');
+
 ```
 
 On **db2**:
@@ -385,7 +400,7 @@ On **db2**:
 SHOW DATABASES;
 ```
 
-You should see `testreplica`.
+You should see `testdb`.
 
 ---
 

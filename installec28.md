@@ -296,7 +296,8 @@ mysql -u root -p
 Run:
 
 ```sql
-CREATE USER 'repl'@'db2' IDENTIFIED BY 'replpass';
+CREATE USER 'repl'@'db2'
+IDENTIFIED WITH mysql_native_password BY 'replpass';
 GRANT REPLICATION SLAVE ON *.* TO 'repl'@'db2';
 FLUSH PRIVILEGES;
 ```
@@ -400,4 +401,3 @@ You should see `testreplica`.
 
 ---
 
-Let me know if you want a **bash automation script** for setting up `/etc/hosts`, MySQL configs, and replication in one go!

@@ -44,6 +44,9 @@ cd /usr/local/mysql
 sudo mkdir mysql-files
 sudo chown mysql:mysql mysql-files
 sudo chmod 750 mysql-files
+sudo chown -R mysql:mysql /usr/local/mysql
+sudo chown -R mysql:mysql /usr/local/mysql/data
+
 ```
 
 ---

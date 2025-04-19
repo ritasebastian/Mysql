@@ -1,4 +1,4 @@
-**clean and production-style MySQL installation using a tarball**, where:
+### **clean and production-style MySQL installation using a tarball**, where:
 
 - ✅ MySQL **software is installed separately** (e.g., `/opt/mysql`)
 - ✅ **Data**, **binlogs**, **slow logs**, **error logs**, and `my.cnf` are all placed in **custom directories**

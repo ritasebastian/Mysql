@@ -257,7 +257,7 @@ Paste:
 
 DATE=$(date +%F_%H-%M)
 BACKUP_DIR="/backup/mysql/$DATE"
-DATA_DIR="/usr/local/mysql/data"
+DATA_DIR="/data/mysql"
 LOG_FILE="/var/log/mysql_backup.log"
 MYSQL_USER="root"
 MYSQL_PASS="dbaonly123"

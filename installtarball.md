@@ -5,6 +5,7 @@
 - ✅ A dedicated **mysql UNIX user** is used
 - ✅ The **PATH is updated**
 - ✅ The install is clean and manageable for admin and backup purposes
+- ✅ Tuning use https://database.gkanev.com/
 
 ---
 

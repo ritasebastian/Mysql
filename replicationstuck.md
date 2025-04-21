@@ -193,4 +193,4 @@ SHOW SLAVE STATUS\G
 
 ---
 
-Would you like a **replica health checker script** that outputs this info and alerts if the replica falls behind?
+

@@ -22,17 +22,85 @@
 
 ### 📦 Install `pt-query-digest`
 
-On Ubuntu/Debian:
-```bash
-sudo apt-get install percona-toolkit
-```
+Absolutely! Here's a clean, tested set of **right steps to install `pt-query-digest`** (from Percona Toolkit) on **Amazon Linux 2023** — including all dependencies.
 
-On CentOS/RHEL/Amazon Linux:
+---
+
+## ✅ How to Install `pt-query-digest` on Amazon Linux 2023 (Step-by-Step)
+
+---
+
+### 🔧 Step 1: Enable Percona Repository
+
 ```bash
-sudo yum install percona-toolkit
+sudo yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+sudo percona-release enable tools release
+sudo yum clean all
 ```
 
 ---
+
+### 📦 Step 2: Download Percona Toolkit Manually (since it's not in repo yet)
+
+```bash
+wget https://repo.percona.com/yum/release/8/RPMS/x86_64/percona-toolkit-3.6.0-1.el8.x86_64.rpm
+```
+
+> If this fails with 404, search latest version here:  
+> [https://repo.percona.com/yum/release/8/RPMS/x86_64/](https://repo.percona.com/yum/release/8/RPMS/x86_64/)
+
+---
+
+### 🧩 Step 3: Install Required Perl Modules
+
+```bash
+sudo yum install \
+  perl-English \
+  perl-Sys-Hostname \
+  perl-List-MoreUtils \
+  perl-Time-HiRes \
+  perl-IO-Socket-SSL \
+  perl-Digest-MD5 \
+  perl-TermReadKey \
+  perl-Module-Load \
+  perl-DBI \
+  perl-DBD-MySQL
+```
+
+---
+
+### 🛠 Step 4: Install the Toolkit RPM
+
+```bash
+sudo yum install ./percona-toolkit-3.6.0-1.el8.x86_64.rpm
+```
+
+---
+
+### ✅ Step 5: Verify Installation
+
+```bash
+pt-query-digest --version
+```
+
+Expected output:
+```bash
+pt-query-digest 3.6.0
+```
+
+---
+
+### 🧪 Bonus: Test With mysqlbinlog
+
+Example:
+
+```bash
+sudo /opt/mysql/bin/mysqlbinlog /var/log/mysql/mysql-bin.000003 \
+| pt-query-digest --type=binlog
+```
+
+---
+
 
 ### 📝 Sample Usage
 

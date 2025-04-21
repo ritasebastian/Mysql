@@ -12,9 +12,6 @@
 - Helps find the **top slowest queries** and **where to index or optimize**
 
 ---
-Great question! In the **real world**, engineers, DBAs, and SREs use `pt-query-digest` reports to:
-
----
 
 ## 🎯 **Main Goals of Using `pt-query-digest`**
 
